@@ -51,7 +51,7 @@ script.json          分镜稿（口播文本 + 雷达图数据）
 ```bash
 # 从仓库根
 ./.venv/bin/python tools/tts.py videos/001-mbti-funcs   # 1. 配音 + 时间戳
-node tools/render.mjs videos/001-mbti-funcs full        # 2. 逐帧渲染（3~5 分钟）
+node tools/render.mjs videos/001-mbti-funcs full        # 2. 逐帧渲染（879 帧，实测约 35 秒）
 node tools/compose.mjs videos/001-mbti-funcs            # 3. 合成成片
 node tools/burn.mjs videos/001-mbti-funcs box           # 4. 烧硬字幕
 
@@ -125,6 +125,13 @@ rm -rf videos/002-xxx/{audio,build,out}    # 那是上一期的产物
 - **换音色** → 改 `script.json` 的 `voice`，重跑 `tts.py`。画面不用重渲。
 - **换配色** → 改 `tools/assets/base.css` 的 CSS 变量。改完务必重跑配色校验（见下）。
 - **只改一个镜头** → `node tools/render.mjs videos/<期> full s3`，再接 `compose.mjs`。
+  （只重渲用到的镜头，其余镜头的帧原样留着，比全量快。）
+- **调字幕位置** → 改 `script.json` 的 `subtitle`：`{ "fontSize": 56, "marginV": 64 }`。
+  `burn.mjs` 把 `PlayResX/Y` 钉成了画布尺寸，所以这两个数是**真像素**：字号 56px、
+  离底边 64px。改完只重烧（秒级），不用重渲。不同平台的底部 UI 安全区不一样，
+  所以这个值按每期单独给。
+- **画面被字幕压住** → 要么调上面的 `marginV`，要么动 `tools/assets/radar.js` 的
+  `CY`（图整体上下移）。注意 `radar.js` 是共用资产，改了所有期都跟着变。
 
 ## 配色
 

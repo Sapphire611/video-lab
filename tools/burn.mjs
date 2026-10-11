@@ -15,11 +15,18 @@ const { dir, mode: style, extra } = parseEpisodeArgs(process.argv.slice(2), ["bo
 });
 if (extra.length) fail(`多余的参数：${extra.join(" ")}`, `用法：${USAGE}`);
 
-// libass 的 FontSize 以 PlayResY=288 为基准，实际像素 ≈ FontSize × 1080/288
+const ep = loadEpisode(dir);
+const script = ep.script;
+
 const STYLES = {
   box: "BorderStyle=3,Outline=0,Shadow=0,BackColour=&H78000000",
   outline: "BorderStyle=1,Outline=2.5,Shadow=0",
 };
+
+/* 字幕的字号和离底边距，按像素写在 script.json 的 subtitle 里。
+   下面 force_style 会把 PlayResX/Y 钉成画布尺寸——不钉的话 libass 按它自己的
+   基准（PlayResY=288）换算，同一个数字在不同片子里出来的大小不一样，没法调。 */
+const sub = { fontSize: 56, marginV: 64, ...(script.subtitle || {}) };
 
 /** 这个 ffmpeg 有没有 libass（subtitles/ass 滤镜）。 */
 function hasSubtitles(bin) {
@@ -53,7 +60,6 @@ if (ffmpeg) {
   }
 }
 
-const ep = loadEpisode(dir);
 const src = ep.mp4;
 const srt = ep.srt;
 const dst = ep.burned(style);
@@ -63,10 +69,13 @@ for (const f of [src, srt]) {
   }
 }
 
+/* PlayResX/Y 钉成画布尺寸，FontSize 和 MarginV 才是真像素 */
 const vf = [
   `subtitles=${path.basename(srt)}`,
-  `force_style='FontName=PingFang SC,FontSize=15,PrimaryColour=&H00FFFFFF,` +
-  `MarginV=72,Alignment=2,${STYLES[style]}'`,
+  `force_style='FontName=PingFang SC,` +
+  `PlayResX=${script.width},PlayResY=${script.height},` +
+  `FontSize=${sub.fontSize},PrimaryColour=&H00FFFFFF,` +
+  `MarginV=${sub.marginV},Alignment=2,${STYLES[style]}'`,
 ].join(":");
 
 // 在 out/ 里跑，让 subtitles 滤镜拿到的是干净相对路径

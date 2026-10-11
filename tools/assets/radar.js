@@ -5,7 +5,9 @@
 
   const NS = "http://www.w3.org/2000/svg";
   const CX = 960;
-  const CY = 596;
+  /* CY 偏上不是随手定的：图连标签占 y 136~890，把 890 往下的 190px 留给底部字幕。
+     画的时候还没烧字幕，图原本压在 596，字幕一烧就正好糊在图上。 */
+  const CY = 490;
   const R = 286;
   const RINGS = [0.25, 0.5, 0.75, 1];
 

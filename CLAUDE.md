@@ -31,7 +31,7 @@ videos/<期>/script.json ─┬─ tools/tts.py ──────→ audio/<id>
 
 ```bash
 ./.venv/bin/python tools/tts.py videos/001-mbti-funcs   # 配音 + 句级时间戳
-node tools/render.mjs videos/001-mbti-funcs full        # 全量渲染（3~5 分钟）
+node tools/render.mjs videos/001-mbti-funcs full        # 全量渲染（879 帧，实测约 35 秒）
 node tools/render.mjs videos/001-mbti-funcs full s3     # 只重渲一个镜头（timeline 仍按全片写）
 node tools/compose.mjs videos/001-mbti-funcs            # → out/001-mbti-funcs.mp4 + .srt
 node tools/burn.mjs videos/001-mbti-funcs box           # → out/001-mbti-funcs-box.mp4
@@ -127,6 +127,11 @@ A 期的 compose 拿 B 期的画面配 A 期的音。所以：
 没编**，所以本机另装了 keg-only 的 `ffmpeg-full`；`burn.mjs` 按 `$FFMPEG` →
 `/opt/homebrew/opt/ffmpeg-full/bin/ffmpeg` → PATH 上的 `ffmpeg` 找，并自检 `subtitles` 滤镜。
 中文必须显式给 `FontName=PingFang SC`，否则 libass 退到没有中文字形的字体会出一片方块。
+
+字幕的位置和字号写在每期的 `script.json` 里（`subtitle: { fontSize, marginV }`），单位是**像素** ——
+`burn.mjs` 把 `PlayResX/Y` 钉成了 `script.width/height`。不钉的话 libass 按自己的基准
+（`PlayResY=288`）换算，同一个数字在不同片子里出来的大小不一样，没法调。
+改这两个数只重烧（秒级），不用重渲。**画面被字幕压住时，先看这里，再看 `radar.js` 的 `CY`。**
 
 ## git 里有什么
 
