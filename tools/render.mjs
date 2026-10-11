@@ -8,9 +8,9 @@
 */
 import { chromium } from "playwright";
 import fs from "node:fs";
-import http from "node:http";
 import path from "node:path";
 import { REPO, loadEpisode, parseEpisodeArgs, fail } from "./episode.mjs";
+import { createServer, listen } from "./serve.mjs";
 
 const USAGE = "node tools/render.mjs <期目录> [stills|full] [镜头id]";
 const { dir, mode, extra } = parseEpisodeArgs(process.argv.slice(2), ["stills", "full"], {
@@ -25,31 +25,9 @@ const script = ep.script;
 const timing = JSON.parse(fs.readFileSync(ep.timingJson, "utf8"));
 
 const { fps, lead, tail, width, height } = script;
-const MIME = {
-  ".html": "text/html; charset=utf-8", ".css": "text/css; charset=utf-8",
-  ".js": "text/javascript; charset=utf-8", ".json": "application/json",
-  ".png": "image/png", ".svg": "image/svg+xml",
-};
 
 /** 镜头时长 = 前导 + 语音 + 尾留白 */
 const shotDuration = (id) => lead + timing[id].voiced_end + tail;
-
-/* 服务的根是仓库根：场景要用 /tools/assets/ 下的共用资产，
-   html 也按仓库内的路径取。防穿越的判断照旧按这个根来。 */
-function serve() {
-  const server = http.createServer((req, res) => {
-    const rel = decodeURIComponent(req.url.split("?")[0]).replace(/^\/+/, "");
-    const file = path.join(REPO, rel);
-    // 只允许读仓库内的文件
-    if (!file.startsWith(REPO + path.sep) || !fs.existsSync(file) || fs.statSync(file).isDirectory()) {
-      res.writeHead(404);
-      return res.end("not found");
-    }
-    res.writeHead(200, { "Content-Type": MIME[path.extname(file)] || "application/octet-stream" });
-    fs.createReadStream(file).pipe(res);
-  });
-  return new Promise((ok) => server.listen(0, "127.0.0.1", () => ok(server)));
-}
 
 /** 仓库内的路径 → 服务用的 URL。slug 和镜头 id 都限定了字符集，不用转义。 */
 const urlOf = (p) => "/" + path.relative(REPO, p).split(path.sep).join("/");
@@ -83,8 +61,10 @@ if (!shots.length) {
 
 console.log(`期目录 ${path.relative(REPO, ep.dir)}   模式 ${mode}\n`);
 
-const server = await serve();
-const port = server.address().port;
+/* 服务的根是仓库根：场景要用 /tools/assets/ 下的共用资产，html 也按仓库内的路径取。
+   随机端口——这个服务只在本次渲染期间活着。 */
+const server = createServer(REPO);
+const port = await listen(server, 0);
 const browser = await chromium.launch({ channel: "chrome" });
 const page = await browser.newPage({
   viewport: { width, height },
