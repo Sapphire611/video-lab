@@ -67,21 +67,13 @@ node tools/render.mjs videos/001-mbti-funcs stills s3
 node tools/probe.mjs videos/001-mbti-funcs/build/preview/s3_t5_9.png 960,450 100,100
 ```
 
-调画面的时候用预览（看的是动画，不是静帧）：
+**怎么看画面**：看成片 `out/<期名>.mp4`（连起来看，和观众看到的一样），
+或者 `stills` 出几张 PNG 单看某一镜。
 
-```bash
-node tools/preview.mjs videos/001-mbti-funcs     # → http://127.0.0.1:5173/__preview
-```
-
-五个镜头并排 + 一条全局时间轴；空格播放/暂停，`←`/`→` 逐帧，也可以只看某一镜。
-它**复用渲染路径**：同一个静态服务、同样赶在场景脚本之前注入 `window.FUNCS`，
-所以预览里看到的就是渲出来存盘的那一帧（实测同一时刻的截图哈希一致）。
-改了场景存盘后刷新页面即可。
-
-> 顺带一提：**双击 `scenes/s1.html` 是白屏的**，这不是坏了。这些文件是"帧函数"而不是网页 ——
+> **双击 `scenes/s1.html` 是白屏的**，这不是坏了。这些文件是"帧函数"而不是网页 ——
 > 它们用根绝对路径（`/tools/assets/…`）引用共用资产，靠渲染器注入 `window.FUNCS`，
 > 而且初始状态本来就是 `opacity: 0`，全靠 `window.render(t)` 把画面画出来。
-> 要在浏览器里看，走上面的预览。
+> 没有能直接双击打开的形式；要看就出帧，或者看成片。
 
 **认不出来就报错，不会默默猜。** 期目录名打错会直接说找不到，而不是回退到当前目录
 渲染错的一期 —— 后者最坏，要等成片出来才发现。
@@ -105,9 +97,8 @@ rm -rf videos/002-xxx/{audio,build,out}    # 那是上一期的产物
 | `videos/<期>/scenes/s*.html` | 每期的镜头，各自暴露 `window.render(t)` |
 | `videos/<期>/audio/timing.json` | 句级时间戳（配音的副产物，动画时间轴靠它） |
 | `tools/episode.mjs` | 期目录的路径契约 —— 所有路径只在这里定义一次 |
-| `tools/serve.mjs` | 渲染器与预览共用的只读静态服务（只服务仓库内的文件） |
+| `tools/serve.mjs` | 渲染器用的只读静态服务（只把仓库内的文件喂给浏览器） |
 | `tools/render.mjs` | 逐帧渲染器 |
-| `tools/preview.mjs` + `preview.html` | 本地预览：并排看各镜头、拖全局时间轴 |
 | `tools/compose.mjs` | ffmpeg 合成 + 字幕生成 |
 | `tools/burn.mjs` | 烧硬字幕 |
 | `tools/probe.mjs` | 取 PNG 指定坐标的颜色，用来验证「东西真的画出来了」 |

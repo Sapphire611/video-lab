@@ -40,10 +40,11 @@ node tools/burn.mjs videos/001-mbti-funcs box           # → out/001-mbti-funcs
 node tools/render.mjs videos/001-mbti-funcs stills s3   # 出 5 张样帧到 build/preview/
 node tools/probe.mjs videos/001-mbti-funcs/build/preview/s3_t5_9.png 960,450 100,100
 # 文件名里的秒数会掉尾零（t5.90 → s3_t5_9.png），别按 toFixed(2) 去猜路径
-
-# 调画面：并排看各镜头 + 拖全局时间轴（空格播放、←/→ 逐帧）
-node tools/preview.mjs videos/001-mbti-funcs            # → http://127.0.0.1:5173/__preview
 ```
+
+**看画面只有两条路：`stills` 出 PNG，或者 compose 出成片看 mp4。**
+用户本人核对画面的方式就是看视频，所以改了画面之后要把成片重出一遍给他看，
+不要只丢一堆 PNG 路径过去。
 
 `cd videos/001-mbti-funcs` 之后 `node ../../tools/render.mjs full s3` 同样可用。
 
@@ -77,13 +78,10 @@ A 期的 compose 拿 B 期的画面配 A 期的音。所以：
 **`window.FUNCS` 由 `render.mjs` 用 `page.addInitScript` 在场景脚本运行前注入**（内容为
 `script.json` 的 `functions`）。晚于 `load` 注入会来不及，场景也不能自己去 fetch 数据。
 
-**场景只在渲染器/预览里成立**：它既依赖注入的 `window.FUNCS`，又用根绝对路径
+**场景只在渲染器里成立**：它既依赖注入的 `window.FUNCS`，又用根绝对路径
 （`/tools/assets/base.css`）引用共用资产，初始状态还都是 `opacity: 0`（全靠 `window.render(t)` 画）。
-所以**双击 `scenes/s1.html` 一定是白屏，这不是 bug**。要在浏览器里看走
-`tools/preview.mjs` —— 它和 `render.mjs` 共用 `tools/serve.mjs` 的静态服务，
-并以同样的方式在场景脚本之前注入 `window.FUNCS`（`render.mjs` 用 `addInitScript`，
-预览用服务端在 `<head>` 后插一段 script），所以预览里的画面和渲出来存盘的帧逐字节一致
-（已实测：同一时刻截图哈希相同）。预览只是给人调的，**验收仍以 `render.mjs` 出的帧为准**。
+所以**双击 `scenes/s1.html` 一定是白屏，这不是 bug，也没有能双击打开的替代形式**
+（曾经做过一个 localhost 预览页，用不上，已删）。要看画面就出帧或看成片。
 
 **顺序依赖**：`compose.mjs` 读 `build/timeline.json`，而它只在 `render.mjs full` 模式写。
 
