@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="/tools/assets/base.css">
+</head>
+<body>
+<div class="stage"></div>
+<script src="/tools/assets/radar.js"></script>
+<script src="/tools/assets/common.js"></script>
+<script>
+const E = Radar.Ease, at = Radar.at;
+const MAIN = 4;   // 前四个是主功能栈，s3 已经长好
+
+const refs = Radar.build(document.querySelector(".stage"), window.FUNCS);
+const values = refs.funcs.map((f, i) => (i < MAIN ? f.value : 0));
+
+/* 中心标签用主文字色——压在多边形填充上，紫色会糊掉 */
+refs.centerLabel.setAttribute("fill", "var(--text-primary)");
+
+window.render = function (t) {
+  refs.poly.setAttribute("stroke-opacity", E.outCubic(at(t, 0.05, 0.5)).toFixed(3));
+  refs.poly.setAttribute("fill-opacity", (0.18 * E.outCubic(at(t, 0.55, 1.90))).toFixed(3));
+
+  refs.funcs.forEach((f, i) => {
+    if (i < MAIN) {
+      values[i] = f.value;
+      refs.markers[i].setAttribute("r", 5);
+      refs.labels[i].key.setAttribute("fill", "var(--series)");
+      refs.labels[i].key.setAttribute("fill-opacity", 1);
+      refs.labels[i].cn.setAttribute("fill-opacity", 0.85);
+      return;
+    }
+    // 阴影功能：补全整张图，但仍压灰
+    const p = E.outCubic(at(t, 0.30 + (i - MAIN) * 0.13, 1.40 + (i - MAIN) * 0.13));
+    values[i] = f.value * p;
+    refs.markers[i].setAttribute("r", (p * 4).toFixed(2));
+    refs.markers[i].setAttribute("fill", "var(--dim)");
+    refs.labels[i].key.setAttribute("fill-opacity", (0.30 + p * 0.34).toFixed(3));
+    refs.labels[i].cn.setAttribute("fill-opacity", (0.255 + p * 0.30).toFixed(3));
+  });
+
+  Radar.shape(refs, values);
+
+  const c = E.outCubic(at(t, 1.50, 2.25));
+  refs.centerLabel.setAttribute("fill-opacity", (c * 0.92).toFixed(3));
+  refs.centerLabel.setAttribute("font-size", (76 * (0.88 + 0.12 * c)).toFixed(1));
+};
+</script>
+</body>
+</html>

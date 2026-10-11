@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="/tools/assets/base.css">
+<style>
+  .wrap { position: absolute; inset: 0; display: flex; flex-direction: column;
+          align-items: center; justify-content: center; gap: 30px; }
+  #brand { font-size: 178px; font-weight: 600; color: var(--series); opacity: 0; }
+  #line  { font-size: 106px; font-weight: 600; color: var(--text-primary);
+           opacity: 0; }
+  .hl  { position: relative; }
+  .bar { position: absolute; left: 0; bottom: -18px; height: 9px; width: 0;
+         background: var(--accent); border-radius: 5px; }
+</style>
+</head>
+<body>
+<div class="stage">
+  <div class="wrap">
+    <div id="brand" class="mono">INFP</div>
+    <div id="line">不是<span class="hl" id="hl">想太多</span>。</div>
+  </div>
+</div>
+<script src="/tools/assets/radar.js"></script>
+<script>
+const E = Radar.Ease, at = Radar.at;
+const brand = document.getElementById('brand');
+const line  = document.getElementById('line');
+const hl    = document.getElementById('hl');
+
+const bar = document.createElement('div');
+bar.className = 'bar';
+hl.appendChild(bar);
+
+/* 等宽字体就绪后再量，否则宽度是回退字体的 */
+let hlW = 0;
+const measure = () => { hlW = hl.getBoundingClientRect().width; };
+measure();
+if (document.fonts && document.fonts.ready) document.fonts.ready.then(measure);
+
+window.render = function (t) {
+  const a = E.outCubic(at(t, 0.05, 0.55));
+  brand.style.opacity = a;
+  brand.style.transform = `translateY(${((1 - a) * 26).toFixed(1)}px)`;
+  // 字距张开；padding-left 抵消掉尾随字距，保证视觉居中
+  const ls = 0.06 + (1 - a) * 0.2;
+  brand.style.letterSpacing = ls.toFixed(3) + 'em';
+  brand.style.paddingLeft = ls.toFixed(3) + 'em';
+
+  const b = E.outCubic(at(t, 0.85, 1.5));
+  line.style.opacity = b;
+  line.style.transform = `translateY(${((1 - b) * 22).toFixed(1)}px)`;
+
+  bar.style.width = (hlW * E.outCubic(at(t, 2.02, 2.5))).toFixed(1) + 'px';
+};
+</script>
+</body>
+</html>

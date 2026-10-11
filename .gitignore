@@ -1,0 +1,14 @@
+# 依赖
+node_modules/
+.venv/
+
+# macOS
+.DS_Store
+
+# 生成物：能由脚本重跑的一律不进 git。
+# compose.mjs 出的成片、render.mjs 出的帧（一期约 900 张 PNG）、tts.py 出的配音。
+# 代价：新机器 clone 后要先联网跑 tts.py 才能渲染；
+# 而重跑 tts.py 会让时间轴漂移，场景里手调的时间点得跟着重调。
+videos/*/audio/
+videos/*/build/
+videos/*/out/

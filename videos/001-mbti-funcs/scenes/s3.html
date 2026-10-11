@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="/tools/assets/base.css">
+</head>
+<body>
+<div class="stage"></div>
+<script src="/tools/assets/radar.js"></script>
+<script src="/tools/assets/common.js"></script>
+<script>
+const NS = "http://www.w3.org/2000/svg";
+const E = Radar.Ease, at = Radar.at;
+const CX = Radar.CX, CY = Radar.CY;
+
+const refs = Radar.build(document.querySelector(".stage"), window.FUNCS);
+
+/* 四个主功能被念到的时刻（镜头内秒数，已含 0.35s 前导）。
+   中文无词级时间戳，按字数在句内插值得到。 */
+const CLAUSES = [
+  { i: 0, a: 0.45, b: 2.31 },  // 内倾情感，冲到最前面
+  { i: 1, a: 2.53, b: 4.19 },  // 外倾直觉，到处发散
+  { i: 2, a: 4.41, b: 6.69 },  // 内倾感觉，抱着旧记忆不放
+  { i: 3, a: 6.91, b: 9.19 },  // 而外倾思考，缩在角落里
+];
+
+/* 琥珀高亮线，叠在细网格轴上 */
+const halos = CLAUSES.map(({ i }) => {
+  const p = Radar.point(i, refs.n, 1);
+  const l = document.createElementNS(NS, "line");
+  l.setAttribute("x1", CX); l.setAttribute("y1", CY);
+  l.setAttribute("x2", p.x.toFixed(1)); l.setAttribute("y2", p.y.toFixed(1));
+  l.setAttribute("stroke", "var(--accent)");
+  l.setAttribute("stroke-width", 3.5);
+  l.setAttribute("stroke-linecap", "round");
+  l.setAttribute("stroke-opacity", 0);
+  refs.svg.querySelector("g").appendChild(l);
+  return l;
+});
+
+const values = refs.funcs.map(() => 0);
+
+window.render = function (t) {
+  refs.poly.setAttribute("stroke-opacity",
+    E.outCubic(at(t, 0.45, 0.95)).toFixed(3));
+
+  // 阴影四条主动退到背景——是「镜头聚焦主功能」的叙事动作，不是硬切
+  // 标记本镜头不参与
+  const dim = 1 - 0.70 * E.outCubic(at(t, 0.20, 0.80));
+  for (let i = CLAUSES.length; i < refs.n; i++) {
+    refs.markers[i].setAttribute("r", 0);
+    refs.labels[i].key.setAttribute("fill-opacity", dim.toFixed(3));
+    refs.labels[i].cn.setAttribute("fill-opacity", (dim * 0.85).toFixed(3));
+  }
+
+  // 主功能：灰 → 紫 入场，被念到时再转琥珀。收尾回紫，不回灰
+  const intro = E.outCubic(at(t, 0.30, 1.00));
+
+  CLAUSES.forEach((c, k) => {
+    values[c.i] = refs.funcs[c.i].value * E.outCubic(at(t, c.a, c.b));
+
+    const h = C.envelope(t, c.a, c.b);
+    halos[k].setAttribute("stroke-opacity", (h * 0.9).toFixed(3));
+
+    const col = C.css(C.mixArr(C.mixArr(C.DIM, C.VIOLET, intro), C.AMBER, h));
+
+    const mk = refs.markers[c.i];
+    mk.setAttribute("r", ((at(t, c.a, c.b) > 0.02 ? 5 : 0) + h * 5).toFixed(2));
+    mk.setAttribute("fill", col);
+
+    refs.labels[c.i].key.setAttribute("fill", col);
+  });
+
+  Radar.shape(refs, values);
+};
+</script>
+</body>
+</html>

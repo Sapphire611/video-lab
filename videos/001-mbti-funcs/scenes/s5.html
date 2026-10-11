@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="/tools/assets/base.css">
+<style>
+  .wrap { position: absolute; inset: 0; display: flex; flex-direction: column;
+          align-items: center; justify-content: center; gap: 40px; }
+  #kicker { font-size: 44px; letter-spacing: .18em; color: var(--text-secondary);
+            opacity: 0; }
+  #rule   { width: 0; height: 2px; background: var(--grid-strong); }
+  #next   { font-size: 84px; font-weight: 600; color: var(--text-primary);
+            opacity: 0; }
+  #next .mono { color: var(--series); }
+  #next .x { color: var(--accent); margin: 0 26px; font-weight: 400; }
+</style>
+</head>
+<body>
+<div class="stage">
+  <div class="wrap">
+    <div id="kicker" class="mono">INFP 的功能栈</div>
+    <div id="rule"></div>
+    <div id="next">外倾直觉 <span class="mono">Ne</span><span class="x">×</span>内倾直觉 <span class="mono">Ni</span></div>
+  </div>
+</div>
+<script src="/tools/assets/radar.js"></script>
+<script>
+const E = Radar.Ease, at = Radar.at;
+const kicker = document.getElementById('kicker');
+const rule   = document.getElementById('rule');
+const next   = document.getElementById('next');
+
+window.render = function (t) {
+  const a = E.outCubic(at(t, 0.20, 0.90));
+  kicker.style.opacity = a;
+  kicker.style.transform = `translateY(${((1 - a) * 18).toFixed(1)}px)`;
+
+  rule.style.width = (E.outCubic(at(t, 0.80, 1.30)) * 420).toFixed(1) + 'px';
+
+  const b = E.outCubic(at(t, 1.20, 2.00));
+  next.style.opacity = b;
+  next.style.transform = `translateY(${((1 - b) * 24).toFixed(1)}px)`;
+};
+</script>
+</body>
+</html>

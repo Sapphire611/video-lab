@@ -1,0 +1,52 @@
+{
+  "title": "INFP 的功能栈",
+  "width": 1920,
+  "height": 1080,
+  "fps": 30,
+  "voice": "zh-CN-XiaoxiaoNeural",
+  "rate": "+10%",
+  "lead": 0.35,
+  "tail": 0.65,
+  "shots": [
+    {
+      "id": "s1",
+      "kind": "hook",
+      "vo": "INFP，不是想太多。",
+      "note": "黑底白字，逐字浮现；「想太多」最后压色强调"
+    },
+    {
+      "id": "s2",
+      "kind": "setup",
+      "vo": "是你脑子里的八个认知功能，正在开一场没人主持的会。",
+      "note": "雷达骨架从中心长出：8 条轴 + 同心网格"
+    },
+    {
+      "id": "s3",
+      "kind": "body",
+      "vo": "内倾情感冲到最前面，外倾直觉到处发散，内倾感觉抱着旧记忆不放，而外倾思考，缩在角落里。",
+      "note": "四个主功能依次点亮并拉伸到对应强度，其余四条保持压暗"
+    },
+    {
+      "id": "s4",
+      "kind": "payoff",
+      "vo": "看懂功能栈，比背十六个标签有用得多。",
+      "note": "多边形闭合成形、填充渐显，中心浮出 INFP 标签"
+    },
+    {
+      "id": "s5",
+      "kind": "outro",
+      "vo": "下一期，讲外倾直觉和内倾直觉，到底差在哪。",
+      "note": "标题卡 + 下期预告"
+    }
+  ],
+  "functions": [
+    { "key": "Fi", "cn": "内倾情感", "en": "Introverted Feeling",   "value": 100, "tier": "main" },
+    { "key": "Ne", "cn": "外倾直觉", "en": "Extraverted Intuition", "value": 86,  "tier": "main" },
+    { "key": "Si", "cn": "内倾感觉", "en": "Introverted Sensing",   "value": 64,  "tier": "main" },
+    { "key": "Te", "cn": "外倾思考", "en": "Extraverted Thinking",  "value": 38,  "tier": "main" },
+    { "key": "Fe", "cn": "外倾情感", "en": "Extraverted Feeling",   "value": 46,  "tier": "shadow" },
+    { "key": "Ni", "cn": "内倾直觉", "en": "Introverted Intuition", "value": 52,  "tier": "shadow" },
+    { "key": "Se", "cn": "外倾感觉", "en": "Extraverted Sensing",   "value": 24,  "tier": "shadow" },
+    { "key": "Ti", "cn": "内倾思考", "en": "Introverted Thinking",  "value": 18,  "tier": "shadow" }
+  ]
+}

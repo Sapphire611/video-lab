@@ -1,0 +1,44 @@
+/* 全片共用。配色取自已通过校验的深色调色板（surface #1a1a19）。
+   单序列 = 一个色相；琥珀仅作「当前讲到」的强调，不承担分类语义。 */
+:root {
+  --surface: #1a1a19;
+  --text-primary: #f0efec;
+  --text-secondary: #c3c2b7;
+
+  --series: #9085e9;   /* INFP 多边形 / 四个主功能 */
+  --accent: #c98500;   /* 当前强调，同一时刻只出现一处 */
+
+  --grid: rgba(240, 239, 236, 0.11);
+  --grid-strong: rgba(240, 239, 236, 0.20);
+  --dim: rgba(195, 194, 183, 0.34);   /* 阴影功能：压灰 */
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html, body {
+  width: 1920px;
+  height: 1080px;
+  overflow: hidden;
+  background: var(--surface);
+  color: var(--text-primary);
+  font-family: "PingFang SC", "Hiragino Sans GB", "Heiti SC", sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+.stage {
+  position: relative;
+  width: 1920px;
+  height: 1080px;
+}
+
+svg.overlay {
+  position: absolute;
+  inset: 0;
+  width: 1920px;
+  height: 1080px;
+}
+
+.mono {
+  font-family: "SF Mono", "Menlo", "Monaco", monospace;
+  font-variant-ligatures: none;
+}

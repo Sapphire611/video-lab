@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="/tools/assets/base.css">
+<style>
+  #cap { position: absolute; top: 92px; width: 100%; text-align: center;
+         font-size: 34px; letter-spacing: .22em; color: var(--text-secondary);
+         opacity: 0; }
+</style>
+</head>
+<body>
+<div class="stage">
+  <div id="cap">八 个 认 知 功 能</div>
+</div>
+<script src="/tools/assets/radar.js"></script>
+<script>
+const E = Radar.Ease, at = Radar.at;
+const CX = Radar.CX, CY = Radar.CY;
+
+const refs = Radar.build(document.querySelector('.stage'), window.FUNCS);
+const cap = document.getElementById('cap');
+
+const scaleAbout = (node, s) =>
+  node.setAttribute('transform',
+    `translate(${CX} ${CY}) scale(${s.toFixed(4)}) translate(${-CX} ${-CY})`);
+
+window.render = function (t) {
+  // 轴从圆心逐条长出
+  refs.axes.forEach((ax, i) => {
+    const s = E.outCubic(at(t, 0.40 + i * 0.07, 1.30 + i * 0.07));
+    const p = Radar.point(i, refs.n, 1);
+    ax.setAttribute('x2', (CX + (p.x - CX) * s).toFixed(1));
+    ax.setAttribute('y2', (CY + (p.y - CY) * s).toFixed(1));
+  });
+
+  // 网格圈由内向外展开
+  refs.rings.forEach((r, k) => {
+    const s = E.outCubic(at(t, 1.10 + k * 0.17, 1.90 + k * 0.17));
+    scaleAbout(r, 0.02 + s * 0.98);
+    r.setAttribute('opacity', s.toFixed(3));
+  });
+
+  // 八个标签依次认领
+  refs.labels.forEach((L, i) => {
+    const s = E.outCubic(at(t, 2.50 + i * 0.15, 3.20 + i * 0.15));
+    L.key.setAttribute('fill-opacity', s.toFixed(3));
+    L.cn.setAttribute('fill-opacity', (s * 0.85).toFixed(3));
+  });
+
+  cap.style.opacity = E.outCubic(at(t, 3.9, 4.6)).toFixed(3);
+};
+</script>
+</body>
+</html>
